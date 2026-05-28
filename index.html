@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ангельские карты · цифровая колода</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#4a2a5f;--ink-soft:#806094;--line:rgba(176,124,255,.16);
+    --surface:rgba(255,252,254,.74);--shadow:rgba(122,72,150,.22);
+    --halo:rgba(255,158,214,.55);--pink:#ff6fae;--violet:#9d6cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Nunito',sans-serif;color:var(--ink);line-height:1.6;min-height:100vh;
+    overflow-x:hidden;position:relative;
+    background:
+      radial-gradient(120% 80% at 12% -5%, #ffe5f4 0%, transparent 55%),
+      radial-gradient(120% 90% at 95% 5%, #ece1ff 0%, transparent 55%),
+      radial-gradient(140% 120% at 50% 115%, #ffe9f6 0%, transparent 60%),
+      linear-gradient(180deg,#fff6fc 0%, #f7eeff 55%, #ffeff8 100%);
+  }
+  body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .star{position:absolute;color:#caa9ff;opacity:0;animation:tw 5s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:.8;transform:scale(1)}}
+
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 20px}
+  header{text-align:center;padding:54px 0 16px}
+  .badge{display:inline-block;font-weight:700;font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;
+    color:#a85bb8;background:rgba(255,255,255,.6);border:1px solid var(--line);padding:6px 15px;border-radius:999px;margin-bottom:18px;backdrop-filter:blur(6px)}
+  h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(2.2rem,5.5vw,3.6rem);line-height:1.05;
+    background:linear-gradient(110deg,#ff6fae,#b569ff 55%,#8a6bff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:12px}
+  .lede{max-width:540px;margin:0 auto;color:var(--ink-soft);font-size:1.05rem}
+
+  /* controls */
+  .controls{display:flex;flex-direction:column;align-items:center;gap:16px;margin:30px 0 26px}
+  .seg{display:inline-flex;background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:999px;padding:4px;backdrop-filter:blur(8px)}
+  .seg button{border:none;background:transparent;font-family:'Nunito';font-weight:700;font-size:.92rem;color:var(--ink-soft);
+    padding:9px 20px;border-radius:999px;cursor:pointer;transition:.25s}
+  .seg button.active{background:linear-gradient(120deg,var(--pink),var(--violet));color:#fff;box-shadow:0 8px 18px -8px var(--violet)}
+  .btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .btn{font-family:'Nunito';font-weight:800;font-size:1rem;cursor:pointer;border-radius:999px;padding:14px 28px;border:none;transition:transform .2s, box-shadow .2s}
+  .btn:active{transform:scale(.96)}
+  .btn-primary{color:#fff;background:linear-gradient(120deg,#ff6fae,#9d6cff);box-shadow:0 14px 30px -12px var(--violet)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 36px -12px var(--violet)}
+  .btn-ghost{background:rgba(255,255,255,.6);color:#a85bb8;border:1px solid var(--line)}
+  .btn-ghost:hover{background:#fff}
+
+  /* card stage */
+  .stage{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;min-height:430px;align-items:center;perspective:1400px}
+  .slot{width:280px}
+  .stage.three .slot{width:240px}
+  .flipper{position:relative;width:100%;aspect-ratio:5/8;transform-style:preserve-3d;
+    transition:transform .8s cubic-bezier(.2,.7,.2,1);transform:rotateY(180deg)}
+  .flipper.flipped{transform:rotateY(0deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px;overflow:hidden;
+    box-shadow:0 28px 60px -26px var(--shadow)}
+
+  /* back */
+  .back{transform:rotateY(180deg);background:linear-gradient(155deg,#8a5fd6,#b56bff 45%,#ff7fb8);
+    display:grid;place-items:center;border:2px solid rgba(255,255,255,.35)}
+  .back .ring{position:absolute;inset:14px;border:1.5px dashed rgba(255,255,255,.45);border-radius:18px}
+  .back svg{position:relative;z-index:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.18))}
+
+  /* front */
+  .front{--c1:var(--pink);--c2:var(--violet);background:#fffafd;border:1px solid var(--line);
+    display:flex;flex-direction:column;padding:22px 20px 20px;text-align:center}
+  .front::before{content:"";position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:180px;height:120px;
+    background:radial-gradient(circle,var(--c1) 0%,transparent 70%);opacity:.28}
+  .sym{font-size:2.1rem;line-height:1;margin-bottom:6px;
+    background:linear-gradient(120deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent;position:relative;z-index:1}
+  .ctitle{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem;line-height:1.1;color:var(--ink);position:relative;z-index:1}
+  .ckey{display:inline-block;align-self:center;margin:9px auto 12px;font-weight:800;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:#fff;padding:4px 12px;border-radius:999px;background:linear-gradient(120deg,var(--c1),var(--c2))}
+  .cmsg{color:var(--ink-soft);font-size:.96rem;flex:1}
+  .cpract{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:.85rem;color:var(--ink)}
+  .cpract b{color:#a85bb8}
+  .role{font-weight:800;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#b58fc7;margin-bottom:4px}
+  .atag{position:relative;z-index:1;align-self:center;font-weight:800;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+    color:#fff;padding:3px 12px;border-radius:999px;margin-bottom:6px;background:linear-gradient(120deg,var(--c1),var(--c2))}
+  .front.arch{border-color:rgba(224,162,58,.42);background:#fffdf8}
+
+  .hint{text-align:center;color:var(--ink-soft);font-size:.92rem;margin-top:8px;min-height:22px}
+  footer{text-align:center;padding:46px 0 64px;color:var(--ink-soft)}
+  footer p{max-width:560px;margin:0 auto;font-size:.9rem}
+  footer .sig{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--ink);margin-top:10px}
+
+  @media(max-width:760px){.stage.three{gap:14px}.stage.three .slot{width:150px}}
+  @media(max-width:430px){.slot{width:248px}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<div class="wrap">
+  <header>
+    <span class="badge">цифровая колода · 44 карты</span>
+    <h1>Ангельские карты</h1>
+    <p class="lede">30 карт-качеств и 14 архангелов. Сделай вдох, задай мысленный вопрос — и позволь карте подсказать послание дня.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="seg">
+      <button data-mode="1" class="active">Одна карта</button>
+      <button data-mode="3">Три карты</button>
+    </div>
+    <div class="btns">
+      <button class="btn btn-primary" id="draw">Вытянуть карту</button>
+      <button class="btn btn-ghost" id="daily">Карта дня</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage"></div>
+  <p class="hint" id="hint"></p>
+
+  <footer>
+    <p>Это интуитивная практика для вдохновения и размышления, а не точная наука и не замена врачу или психологу. Берите то, что откликается.</p>
+    <p class="sig">Пусть выпадет именно то, что тебе сейчас нужно ✦</p>
+  </footer>
+</div>
+
+<script>
+const DECK=[
+ {n:"Новое начало",k:"чистый старт",m:"Перед тобой открывается чистая страница. Прошлое отпущено — можно начать заново, легко и без груза.",p:"Сделай сегодня один маленький первый шаг."},
+ {n:"Доверие",k:"вера в путь",m:"Ты на верной дороге, даже если не видишь её целиком. Доверься — тебя ведут.",p:"Отпусти контроль хотя бы в одном деле."},
+ {n:"Защита",k:"ты в безопасности",m:"Невидимая поддержка рядом с тобой. Можно выдохнуть — ты под крылом.",p:"Представь над собой тёплый свет, окутывающий тебя."},
+ {n:"Исцеление",k:"нежность к себе",m:"Пришло время бережно залечить то, что болит. Дай себе мягкость и покой.",p:"Сделай что-то заботливое для своего тела."},
+ {n:"Изобилие",k:"поток даров",m:"Жизнь готова делиться с тобой. Открой ладони — изобилие уже в пути.",p:"Поблагодари за три вещи, что у тебя уже есть."},
+ {n:"Перемены",k:"смелый поворот",m:"Что-то меняется — и это к лучшему. Отпусти старое, чтобы впустить новое.",p:"Разреши себе попробовать что-то непривычное."},
+ {n:"Любовь к себе",k:"ты достоин(на)",m:"Ты заслуживаешь той же доброты, что даришь другим. Начни с себя.",p:"Скажи себе тёплые слова, как лучшему другу."},
+ {n:"Отпускание",k:"лёгкость",m:"То, что ты держишь слишком крепко, мешает идти дальше. Разожми руку.",p:"Отпусти одну мысль, которая тебя гложет."},
+ {n:"Терпение",k:"всему свой час",m:"Семена уже посеяны. Не торопи — нужное расцветёт вовремя.",p:"Сегодня позволь делу идти своим темпом."},
+ {n:"Интуиция",k:"внутренний голос",m:"Ответ уже звучит внутри тебя, тише слов. Прислушайся.",p:"Перед решением задержись и спроси сердце."},
+ {n:"Прощение",k:"освобождение",m:"Прощение — подарок себе, а не другому. Сними тяжесть с сердца.",p:"Мысленно отпусти одну старую обиду."},
+ {n:"Радость",k:"свет внутри",m:"Радость не нужно заслуживать — она доступна прямо сейчас.",p:"Найди повод улыбнуться без причины."},
+ {n:"Покой",k:"тишина",m:"В тишине ты слышишь главное. Сбавь темп и просто побудь.",p:"Подари себе пять минут тишины без телефона."},
+ {n:"Смелость",k:"твоя сила",m:"В тебе больше отваги, чем ты думаешь. Сделай шаг навстречу страху.",p:"Скажи «да» тому, что немного пугает."},
+ {n:"Благодарность",k:"полнота",m:"Когда замечаешь хорошее, его становится больше.",p:"Перед сном вспомни лучший момент дня."},
+ {n:"Ты не один(на)",k:"поддержка",m:"Вокруг больше любви и помощи, чем кажется. Позволь себе опереться.",p:"Попроси сегодня о помощи — это нормально."},
+ {n:"Творчество",k:"поток идей",m:"Внутри тебя ждёт что-то, что хочет родиться. Дай этому форму.",p:"Сотвори что-нибудь просто ради удовольствия."},
+ {n:"Ясность",k:"туман рассеивается",m:"Скоро станет понятно, что делать. Не спеши — ответ проявится.",p:"Запиши волнующий вопрос и отложи его."},
+ {n:"Равновесие",k:"баланс",m:"Ты слишком много отдаёшь в одну сторону. Верни себе равновесие.",p:"Удели время тому, что откладывал(а) для себя."},
+ {n:"Надежда",k:"свет впереди",m:"Даже в темноте брезжит рассвет. Держись — становится светлее.",p:"Вспомни трудность, которую ты уже пережил(а)."},
+ {n:"Заземление",k:"опора в теле",m:"Вернись в тело и в момент «здесь и сейчас». Земля держит тебя.",p:"Сделай несколько глубоких вдохов, ощущая стопы."},
+ {n:"Мечта",k:"загадай смело",m:"Твоё желание услышано. Не бойся хотеть по-крупному.",p:"Опиши мечту так, будто она уже сбылась."},
+ {n:"Тёплая связь",k:"отношения",m:"Кто-то рядом нуждается в твоём тепле — и готов согреть в ответ.",p:"Напиши близкому человеку доброе сообщение."},
+ {n:"Завершение",k:"новая глава",m:"Один цикл подходит к концу, освобождая место новому. Заверши с благодарностью.",p:"Доведи до конца одно незаконченное дело."},
+ {n:"Чудо",k:"знак рядом",m:"Будь внимателен(на): для тебя готовится приятный сюрприз.",p:"Замечай сегодня маленькие совпадения."},
+ {n:"Сила",k:"внутренний стержень",m:"Ты сильнее своих обстоятельств. Опора — внутри тебя.",p:"Вспомни, как ты уже справлялся(ась) раньше."},
+ {n:"Поток",k:"гибкость",m:"Не борись с течением — двигайся вместе с ним, и станет легче.",p:"Где застрял(а) — попробуй уступить вместо борьбы."},
+ {n:"Уют",k:"твой дом",m:"Создай вокруг островок тепла и безопасности.",p:"Сделай своё пространство чуть уютнее."},
+ {n:"Мудрость",k:"зрелый взгляд",m:"Ты знаешь больше, чем думаешь. Доверься опыту сердца.",p:"Спроси: что бы я посоветовал(а) себе через год?"},
+ {n:"Доброта",k:"тихий свет",m:"Маленький добрый жест меняет чей-то день — и твой тоже.",p:"Сделай доброе дело, не ожидая ответа."},
+ {t:"a",n:"Михаил",k:"защита · смелость",m:"Я укрою тебя от страха и сомнений. Там, где было тревожно, теперь — сила и ясность.",p:"Мысленно попроси Михаила убрать твой страх в одном вопросе."},
+ {t:"a",n:"Рафаил",k:"исцеление",m:"Позволь себе исцелиться — телом и душой. Всё, что болит, идёт на поправку.",p:"Положи ладонь туда, где есть напряжение, и подыши теплом."},
+ {t:"a",n:"Гавриил",k:"вести · творчество",m:"Пришло время сказать своё слово и творить. Тебя услышат.",p:"Озвучь или запиши то, что давно хотел(а) выразить."},
+ {t:"a",n:"Уриил",k:"мудрость · свет",m:"Свет понимания озаряет твой ум. Ответ придёт как тихое озарение.",p:"Задай вопрос перед сном и отметь первую утреннюю мысль."},
+ {t:"a",n:"Чамуэль",k:"любовь · мир",m:"То, что ты ищешь, уже движется к тебе. В сердце воцаряется покой.",p:"Пошли мысленно тепло тому, с кем хочется мира."},
+ {t:"a",n:"Задкиил",k:"прощение",m:"Отпусти старую обиду — и станет легче дышать. Милосердие к себе исцеляет.",p:"Прости себя за одну прошлую ошибку."},
+ {t:"a",n:"Ханиэль",k:"интуиция · грация",m:"Доверься своей внутренней луне. Твоя чувствительность — это дар.",p:"Прислушайся к телесным ощущениям-подсказкам."},
+ {t:"a",n:"Разиэль",k:"тайны · сны",m:"Скрытое начинает проясняться. Обрати внимание на сны и знаки.",p:"Запиши сон или образ, что сегодня всплыл."},
+ {t:"a",n:"Ариэль",k:"природа · изобилие",m:"Природа поддерживает тебя, а твои нужды будут восполнены.",p:"Побудь немного на воздухе или рядом с растениями."},
+ {t:"a",n:"Азраил",k:"утешение",m:"Если на сердце тяжело — позволь себе грустить. Тебя бережно поддержат.",p:"Будь к себе особенно нежен(на) сегодня."},
+ {t:"a",n:"Иеремиил",k:"пересмотр · надежда",m:"Оглянись на пройденный путь с теплом — впереди новый виток.",p:"Вспомни, как далеко ты уже продвинулся(ась)."},
+ {t:"a",n:"Метатрон",k:"энергия · очищение",m:"Стряхни лишнее и собери силы — пора двигаться вперёд.",p:"Убери одну вещь, что забирает твою энергию."},
+ {t:"a",n:"Сандальфон",k:"молитвы · музыка",m:"Твоё желание услышано. Музыка и слова поднимут твой дух.",p:"Включи мелодию, которая тебя окрыляет."},
+ {t:"a",n:"Рагуил",k:"гармония в отношениях",m:"Недопонимание разрешится. В отношениях восстанавливаются лад и справедливость.",p:"Сделай шаг к примирению или ясности с кем-то."}
+];
+const SYM=["✦","☽","❀","✶","⟡","✷","❋","◇","✧","❂"];
+const ACC=[["#ff5fa6","#ff9ecb"],["#cf6bff","#ff8fd0"],["#7c8cff","#aeb9ff"],["#9d6cff","#c9a3ff"],
+           ["#ff7e9d","#ffb38f"],["#a05ad6","#d68fff"],["#ffb04f","#ff8fc7"],["#8b6bff","#bda3ff"]];
+const AACC=[["#e8a93f","#b56bff"],["#f0b357","#9d6cff"],["#d99a4f","#cf6bff"],["#e6b15a","#8a6bff"]];
+
+const stage=document.getElementById('stage'), hint=document.getElementById('hint');
+let mode=1;
+
+function backFace(){
+  return `<div class="face back"><div class="ring"></div>
+    <svg width="74" height="74" viewBox="0 0 64 64" fill="none">
+      <path d="M44 32a18 18 0 1 1-15.5-17.8A14 14 0 0 0 44 32z" fill="#fff" opacity=".95"/>
+      <circle cx="50" cy="15" r="2.2" fill="#fff"/><circle cx="16" cy="20" r="1.6" fill="#fff"/>
+      <circle cx="52" cy="44" r="1.6" fill="#fff"/><circle cx="14" cy="42" r="1.3" fill="#fff"/>
+    </svg></div>`;
+}
+function pickUnique(count){
+  const idx=[...Array(DECK.length).keys()];
+  for(let i=idx.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[idx[i],idx[j]]=[idx[j],idx[i]];}
+  return idx.slice(0,count);
+}
+function dailyIndex(){
+  const d=new Date(); const key=d.getFullYear()*1000+(d.getMonth()+1)*50+d.getDate();
+  let h=key; h=(h*2654435761)%4294967296; return Math.abs(h)%DECK.length;
+}
+function frontFaceWithRole(card,i,role){
+  const arch = card.t==='a';
+  const a = arch ? AACC[i%AACC.length] : ACC[i%ACC.length];
+  const s = arch ? "✶" : SYM[i%SYM.length];
+  const r = role?`<div class="role">${role}</div>`:'';
+  const tag = arch?`<div class="atag">Архангел</div>`:'';
+  return `<div class="face front${arch?' arch':''}" style="--c1:${a[0]};--c2:${a[1]}">
+    ${r}${tag}<div class="sym">${s}</div>
+    <div class="ctitle">${card.n}</div>
+    <span class="ckey">${card.k}</span>
+    <div class="cmsg">${card.m}</div>
+    <div class="cpract"><b>Практика:</b> ${card.p}</div>
+  </div>`;
+}
+function render(indices,roles){
+  stage.className='stage'+(indices.length===3?' three':'');
+  stage.innerHTML='';
+  const flippers=[];
+  indices.forEach((ci,pos)=>{
+    const slot=document.createElement('div'); slot.className='slot';
+    const role=roles?roles[pos]:null;
+    slot.innerHTML=`<div class="flipper">${backFace()}${frontFaceWithRole(DECK[ci],ci,role)}</div>`;
+    stage.appendChild(slot);
+    flippers.push(slot.querySelector('.flipper'));
+  });
+  flippers.forEach((f,i)=>setTimeout(()=>f.classList.add('flipped'),180+i*260));
+}
+function draw(daily){
+  hint.textContent='';
+  if(daily){
+    render([dailyIndex()]);
+    hint.textContent='Это твоя карта на сегодня — она останется неизменной до завтра.';
+  }else if(mode===3){
+    render(pickUnique(3),['Ситуация','Совет','Итог']);
+  }else{
+    render(pickUnique(1));
+  }
+}
+document.getElementById('seg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  mode=+b.dataset.mode;
+  document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('active',x===b));
+  document.getElementById('draw').textContent= mode===3?'Сделать расклад':'Вытянуть карту';
+});
+document.getElementById('draw').addEventListener('click',()=>draw(false));
+document.getElementById('daily').addEventListener('click',()=>{
+  document.querySelector('#seg button[data-mode="1"]').click();
+  draw(true);
+});
+
+// starfield + initial state
+(function(){const l=document.getElementById('stars');for(let i=0;i<40;i++){const s=document.createElement('div');s.className='star';s.textContent='✦';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.fontSize=(8+Math.random()*13)+'px';s.style.animationDelay=(Math.random()*5)+'s';s.style.animationDuration=(3.5+Math.random()*4)+'s';l.appendChild(s);} })();
+render([0]); // show one face-down card on load (stays face down)
+hint.textContent='Нажми «Вытянуть карту», когда будешь готов(а).';
+</script>
+</body>
+</html>
